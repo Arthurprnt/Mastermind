@@ -15,6 +15,7 @@ possibilitesCouleur = ["J", "B", "R", "V", "N", "W"]
 partieFinie = False
 nbEssaie = 1
 resultatPartie = ""
+listeIa = [possibilitesCouleur for i in range(tailleCode)]
 
 ##### Les fonctions auxiliaires et tests #######
 
@@ -79,11 +80,11 @@ def verifierCode(listeInput, listeCode, taille):
     codeReponse = [0] * taille
     for i in range(len(listeInput)):
         if listeInput[i] == listeCode[i]:
-            codeReponse[i] = "|●|"
+            codeReponse[i] = "●"
         elif valeurDans(listeInput[i], listeCode):
-            codeReponse[i] = "|◦|"
+            codeReponse[i] = "◦"
         else:
-            codeReponse[i] = "| |"
+            codeReponse[i] = " "
     return codeReponse
 
 def afficherReponse(listeCode):
@@ -93,17 +94,45 @@ def afficherReponse(listeCode):
     assert type(listeCode) == list
     texteReponse = "-  "
     for i in listeCode:
-        texteReponse = texteReponse + i + "  "
+        texteReponse = texteReponse + "|" + i + "|  "
     texteReponse = texteReponse + "-"
     return texteReponse
+
+def faireJouerIa(listeCoups):
+    coup = ""
+    for i in listeCoups:
+        coup = coup + i[random.randint(0, len(i)-1)]
+    return coup
+
+def analyserReponse(reponse, listeCoups, derniereAction):
+    for i in range(len(reponse)):
+        if reponse[i] == "●":
+            listeCoups[i] = [derniereAction[i]]
+        elif reponse[i] == "◦":
+            pass
+        elif reponse[i] == " ":
+            if valeurDans(derniereAction[i], listeCoups[i]):
+                listeCoups[i].pop(listeCoups[i].index(derniereAction[i]))
 
 
 ##### programme principal #######
 
 codePartie = genererCode(tailleCode, possibilitesCouleur)
+demanderIa = input("-  Faire jouer l'ia (o/n) ? - ").lower()
+while not(demanderIa in ("o", "n")):
+    print("-    Réponse invalide...    -")
+    demanderIa = input("-  Faire jouer l'ia (o/n) ? - ").lower()
+print("")
+if demanderIa == "o":
+    iaJoue = True
+else:
+    iaJoue = False
 while not partieFinie:
-    # Les différentes couleurs ne doivent pas être espacées lors de l'input
-    tentative = input(f"{nbEssaie}  ")
+    if iaJoue:
+        tentative = faireJouerIa(listeIa)
+    else:
+        # Les différentes couleurs ne doivent pas être espacées lors de l'input
+        tentative = input(f"{nbEssaie}  ")
     tentativeListe = convertirTentative(tentative)
     estValide = verifierTenta(tentativeListe, possibilitesCouleur, tailleCode)
     if estValide:
@@ -114,6 +143,8 @@ while not partieFinie:
             resultatPartie = "G"
         else:
             reponseOrdi = verifierCode(tentativeListe, codePartie, tailleCode)
+            if iaJoue:
+                analyserReponse(reponseOrdi, listeIa, tentative)
             print(afficherReponse(reponseOrdi))
             nbEssaie = nbEssaie + 1
             if nbEssaie == nbEssaieMax+1:
