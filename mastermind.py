@@ -9,13 +9,13 @@ import random
 #Constantes
 tailleCode = 5
 nbEssaieMax = 10
-possibilitesCouleur = ["J", "B", "R", "V", "N", "W"]
+possibilitesCouleur = ["B", "J", "M", "N", "O", "R", "V", "W"]
 
 # Variables
 partieFinie = False
 nbEssaie = 1
 resultatPartie = ""
-listeIa = [possibilitesCouleur for i in range(tailleCode)]
+listeIa = [possibilitesCouleur[:] for i in range(tailleCode)]
 
 ##### Les fonctions auxiliaires et tests #######
 
@@ -72,7 +72,7 @@ def verifierCode(listeInput, listeCode, taille):
     Vérifie le code envoyer, renvoie une liste avec la couleur des marques
     ●: Bonne couleur au bon endroit
     ◦: Bonne couleur mais au mauvais endroit
-     : Mauvaise couleur
+     : Mauvaise couleur, elle n'est pas dans le code.
     """
     assert type(listeInput) == list
     assert type(listeCode) == list
@@ -107,12 +107,17 @@ def faireJouerIa(listeCoups):
 def analyserReponse(reponse, listeCoups, derniereAction):
     for i in range(len(reponse)):
         if reponse[i] == "●":
+            # Enlève toutes les autres couleurs de la case
             listeCoups[i] = [derniereAction[i]]
         elif reponse[i] == "◦":
-            pass
-        elif reponse[i] == " ":
+            # Enlève la couleur dans la case en question
             if valeurDans(derniereAction[i], listeCoups[i]):
                 listeCoups[i].pop(listeCoups[i].index(derniereAction[i]))
+        elif reponse[i] == " ":
+            # Enlève la couleur dans toute les cases
+            for y in range(len(listeCoups)):
+                if valeurDans(derniereAction[i], listeCoups[y]):
+                    listeCoups[y].pop(listeCoups[y].index(derniereAction[i]))
 
 
 ##### programme principal #######
